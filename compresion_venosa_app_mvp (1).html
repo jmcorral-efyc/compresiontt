@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Compresión Venosa — MVP</title>
+<style>
+:root {
+  --c-navy: #0A2540;
+  --c-navy-mid: #1B3D6E;
+  --c-teal: #1D9E75;
+  --c-teal-lt: #E1F5EE;
+  --c-amber: #BA7517;
+  --c-amber-lt: #FAEEDA;
+  --c-red: #A32D2D;
+  --c-red-lt: #FCEBEB;
+  --c-green: #3B6D11;
+  --c-green-lt: #EAF3DE;
+  --step-active: #0A2540;
+  --step-done: #1D9E75;
+  --step-inactive: #D3D1C7;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #555;
+  --color-background-primary: #fff;
+  --color-background-secondary: #f5f5f3;
+  --color-border-tertiary: rgba(0,0,0,0.12);
+  --color-border-secondary: rgba(0,0,0,0.22);
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --font-sans: system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #f0f0ee;
+    --color-text-secondary: #aaa;
+    --color-background-primary: #1e1e1c;
+    --color-background-secondary: #2a2a28;
+    --color-border-tertiary: rgba(255,255,255,0.1);
+    --color-border-secondary: rgba(255,255,255,0.2);
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); background: var(--color-background-secondary); color: var(--color-text-primary); min-height: 100vh; padding: 1rem; }
+
+.app-wrap { max-width: 640px; margin: 0 auto; padding: 1rem 0 2rem; }
+.screen { display: none; }
+.screen.active { display: block; }
+
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+.header-icon { width: 36px; height: 36px; background: var(--c-navy); border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.header-icon svg { width: 18px; height: 18px; fill: white; }
+.header-text h1 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+.header-text p { font-size: 13px; color: var(--color-text-secondary); }
+
+.legal-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; border-left: 3px solid var(--c-amber); border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.legal-card p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.legal-card strong { color: var(--c-amber); }
+
+.progress-bar { display: flex; gap: 6px; margin-bottom: 1.5rem; align-items: center; }
+.progress-step { height: 4px; flex: 1; border-radius: 2px; background: var(--step-inactive); transition: background 0.3s; }
+.progress-step.done { background: var(--step-done); }
+.progress-step.active { background: var(--step-active); }
+.progress-label { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; }
+
+.step-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.25rem; }
+.step-subtitle { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.25rem; line-height: 1.5; }
+
+.option-grid { display: grid; gap: 10px; margin-bottom: 1.25rem; }
+.option-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 0.9rem 1.1rem; cursor: pointer; transition: border-color 0.2s, background 0.2s; display: flex; gap: 12px; align-items: flex-start; }
+.option-card:hover { border-color: var(--color-border-secondary); background: var(--color-background-secondary); }
+.option-card.selected { border-color: var(--c-navy-mid); border-width: 2px; background: var(--color-background-secondary); }
+.option-dot { width: 18px; height: 18px; border: 2px solid var(--color-border-secondary); border-radius: 50%; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s; }
+.option-card.selected .option-dot { border-color: var(--c-navy-mid); background: var(--c-navy-mid); }
+.option-card.selected .option-dot::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: white; }
+.option-label { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.option-desc { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.4; }
+
+.checkbox-list { display: grid; gap: 8px; margin-bottom: 1.25rem; }
+.check-item { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.15s; }
+.check-item:hover { background: var(--color-background-secondary); }
+.check-item.checked { border-color: var(--c-teal); border-width: 1.5px; }
+.check-box { width: 16px; height: 16px; border: 1.5px solid var(--color-border-secondary); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s; }
+.check-item.checked .check-box { background: var(--c-teal); border-color: var(--c-teal); }
+.check-item.checked .check-box::after { content: ''; width: 8px; height: 5px; border-left: 1.5px solid white; border-bottom: 1.5px solid white; transform: rotate(-45deg) translateY(-1px); }
+.check-label { font-size: 13px; color: var(--color-text-primary); }
+.check-badge { margin-left: auto; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; flex-shrink: 0; }
+.badge-abs { background: var(--c-red-lt); color: var(--c-red); }
+.badge-rel { background: var(--c-amber-lt); color: var(--c-amber); }
+
+.itb-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+.itb-section label { font-size: 13px; color: var(--color-text-secondary); display: block; margin-bottom: 8px; }
+.itb-row { display: flex; gap: 10px; align-items: center; }
+.itb-row input[type=range] { flex: 1; }
+.itb-value { font-size: 20px; font-weight: 500; min-width: 48px; text-align: center; color: var(--color-text-primary); }
+.itb-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--color-text-secondary); margin-top: 6px; }
+.itb-indicator { margin-top: 8px; padding: 6px 10px; border-radius: var(--border-radius-md); font-size: 12px; font-weight: 500; text-align: center; }
+.itb-green { background: var(--c-green-lt); color: var(--c-green); }
+.itb-amber { background: var(--c-amber-lt); color: var(--c-amber); }
+.itb-red { background: var(--c-red-lt); color: var(--c-red); }
+
+.toggle-row { display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem; padding: 0.6rem 1rem; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); cursor: pointer; }
+.toggle-label { font-size: 13px; color: var(--color-text-primary); flex: 1; }
+.toggle-switch { width: 32px; height: 18px; background: var(--color-border-secondary); border-radius: 9px; position: relative; transition: background 0.2s; flex-shrink: 0; }
+.toggle-switch::after { content: ''; width: 14px; height: 14px; border-radius: 50%; background: white; position: absolute; top: 2px; left: 2px; transition: transform 0.2s; }
+.toggle-row.on .toggle-switch { background: var(--c-navy-mid); }
+.toggle-row.on .toggle-switch::after { transform: translateX(14px); }
+
+.nav-row { display: flex; gap: 10px; margin-top: 0.5rem; }
+.btn { padding: 10px 20px; border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); transition: background 0.15s; }
+.btn:hover { background: var(--color-background-secondary); }
+.btn-primary { background: var(--c-navy); color: white; border-color: var(--c-navy); flex: 1; }
+.btn-primary:hover { background: var(--c-navy-mid); border-color: var(--c-navy-mid); }
+.btn-primary:disabled { background: var(--color-border-secondary); border-color: var(--color-border-secondary); cursor: default; }
+.btn-ghost { color: var(--color-text-secondary); }
+
+.semaphore-card { border-radius: var(--border-radius-lg); padding: 1.5rem; margin-bottom: 1.25rem; text-align: center; }
+.semaphore-green { background: var(--c-green-lt); border: 2px solid #3B6D11; }
+.semaphore-amber { background: var(--c-amber-lt); border: 2px solid var(--c-amber); }
+.semaphore-red { background: var(--c-red-lt); border: 2px solid var(--c-red); }
+.semaphore-icon { font-size: 40px; margin-bottom: 0.5rem; line-height: 1; }
+.semaphore-title { font-size: 20px; font-weight: 500; margin-bottom: 0.25rem; }
+.semaphore-green .semaphore-title { color: var(--c-green); }
+.semaphore-amber .semaphore-title { color: var(--c-amber); }
+.semaphore-red .semaphore-title { color: var(--c-red); }
+.semaphore-text { font-size: 13px; line-height: 1.5; }
+.semaphore-green .semaphore-text { color: #27500A; }
+.semaphore-amber .semaphore-text { color: #633806; }
+.semaphore-red .semaphore-text { color: #791F1F; }
+
+.system-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.system-card h3 { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; }
+.system-recom { font-size: 14px; color: var(--c-navy-mid); font-weight: 500; margin-bottom: 0.5rem; }
+.precaution-list { list-style: none; }
+.precaution-list li { font-size: 13px; color: var(--color-text-secondary); padding: 4px 0 4px 16px; position: relative; line-height: 1.4; }
+.precaution-list li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--color-border-secondary); position: absolute; left: 0; top: 9px; }
+
+.edu-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+.edu-card h3 { font-size: 14px; font-weight: 500; color: var(--c-navy-mid); margin-bottom: 0.5rem; }
+.edu-card p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+
+.section-label { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-secondary); margin-bottom: 0.75rem; margin-top: 1rem; }
+</style>
+</head>
+<body>
+<div class="app-wrap">
+
+<!-- SCREEN 0: INICIO -->
+<div class="screen active" id="s0">
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>Guía de compresión venosa</h1>
+      <p>Asistente de decisión clínica para enfermería</p>
+    </div>
+  </div>
+  <div class="legal-card">
+    <p><strong>Aviso legal:</strong> Esta herramienta es un apoyo orientativo para profesionales de enfermería. No sustituye la valoración clínica individualizada, el criterio enfermero ni la prescripción médica. Basada en evidencia GNEAUPP 2025 y guías internacionales.</p>
+  </div>
+  <div style="margin-bottom:1.25rem;">
+    <p class="step-subtitle">Esta guía te ayudará a evaluar en 5 pasos si un paciente puede recibir compresión terapéutica de forma segura, y qué tipo de sistema puede ser más adecuado.</p>
+  </div>
+  <div class="option-grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom:1.25rem;">
+    <div class="system-card" style="text-align:center; padding:0.8rem;">
+      <div style="font-size:22px; margin-bottom:4px;">5</div>
+      <div style="font-size:12px; color:var(--color-text-secondary);">pasos de valoración</div>
+    </div>
+    <div class="system-card" style="text-align:center; padding:0.8rem;">
+      <div style="font-size:22px; margin-bottom:4px; color:var(--c-teal);">3</div>
+      <div style="font-size:12px; color:var(--color-text-secondary);">niveles de decisión</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="goTo('s1')">Iniciar valoración</button>
+</div>
+
+<!-- SCREEN 1: TIPO DE LESIÓN -->
+<div class="screen" id="s1">
+  <div class="progress-bar">
+    <div class="progress-step active"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <span class="progress-label">1 de 5</span>
+  </div>
+  <p class="step-title">Tipo de lesión</p>
+  <p class="step-subtitle">¿Qué tipo de lesión presenta el paciente?</p>
+  <div class="option-grid">
+    <div class="option-card" data-group="lesion" data-val="venosa" onclick="selectOption(this)">
+      <div class="option-dot"></div>
+      <div>
+        <div class="option-label">Sospecha venosa</div>
+        <div class="option-desc">Úlcera en zona maleolar, piel ocre, lipodermatoesclerosis, edema, sin signos evidentes de isquemia</div>
+      </div>
+    </div>
+    <div class="option-card" data-group="lesion" data-val="mixta" onclick="selectOption(this)">
+      <div class="option-dot"></div>
+      <div>
+        <div class="option-label">Sospecha mixta (venosa + arterial)</div>
+        <div class="option-desc">Componente venoso y signos sugestivos de isquemia o antecedente de arteriopatía periférica</div>
+      </div>
+    </div>
+    <div class="option-card" data-group="lesion" data-val="dudosa" onclick="selectOption(this)">
+      <div class="option-dot"></div>
+      <div>
+        <div class="option-label">Etiología dudosa / no filiada</div>
+        <div class="option-desc">No hay suficiente información clínica para determinar el componente vascular predominante</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="goTo('s0')">Atrás</button>
+    <button class="btn btn-primary" id="btn1" disabled onclick="goTo('s2')">Continuar</button>
+  </div>
+</div>
+
+<!-- SCREEN 2: EVALUACIÓN VASCULAR -->
+<div class="screen" id="s2">
+  <div class="progress-bar">
+    <div class="progress-step done"></div>
+    <div class="progress-step active"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <span class="progress-label">2 de 5</span>
+  </div>
+  <p class="step-title">Evaluación vascular</p>
+  <p class="step-subtitle">Datos de exploración del miembro inferior a comprimir.</p>
+  <div class="section-label">Pulsos palpables</div>
+  <div class="toggle-row" id="t-pedia" onclick="toggleItem(this, 'pulso_pedia')">
+    <span class="toggle-label">Pulso pedio presente</span>
+    <div class="toggle-switch"></div>
+  </div>
+  <div class="toggle-row" id="t-tibial" onclick="toggleItem(this, 'pulso_tibial')">
+    <span class="toggle-label">Pulso tibial posterior presente</span>
+    <div class="toggle-switch"></div>
+  </div>
+  <div class="section-label">Signos de isquemia crítica</div>
+  <div class="checkbox-list">
+    <div class="check-item" data-val="dolor_reposo" data-type="abs" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Dolor en reposo</span>
+      <span class="check-badge badge-abs">Absoluta</span>
+    </div>
+    <div class="check-item" data-val="necrosis" data-type="abs" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Necrosis / gangrena</span>
+      <span class="check-badge badge-abs">Absoluta</span>
+    </div>
+    <div class="check-item" data-val="isquemia_aguda" data-type="abs" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Isquemia aguda (extremidad fría, cianótica)</span>
+      <span class="check-badge badge-abs">Absoluta</span>
+    </div>
+  </div>
+  <div class="section-label">Índice tobillo-brazo (ITB)</div>
+  <div class="itb-section">
+    <label>Disponibilidad del ITB</label>
+    <div class="toggle-row" id="t-itb" onclick="toggleITB()" style="margin-bottom:0.75rem;">
+      <span class="toggle-label">ITB disponible</span>
+      <div class="toggle-switch"></div>
+    </div>
+    <div id="itb-slider-wrap" style="display:none;">
+      <div class="itb-row">
+        <input type="range" id="itb-range" min="0.3" max="1.5" step="0.05" value="0.9" oninput="updateITB()">
+        <div class="itb-value" id="itb-display">0.90</div>
+      </div>
+      <div class="itb-scale"><span>0.3</span><span>0.8</span><span>1.0</span><span>1.3</span><span>1.5</span></div>
+      <div class="itb-indicator itb-green" id="itb-indicator">ITB ≥ 0.8 — Compresión viable</div>
+    </div>
+    <div id="itb-nodisp" style="font-size:13px; color:var(--color-text-secondary); padding-top:4px;">Procede con precaución. Se recomienda obtenerlo antes de iniciar compresión.</div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="goTo('s1')">Atrás</button>
+    <button class="btn btn-primary" onclick="goTo('s3')">Continuar</button>
+  </div>
+</div>
+
+<!-- SCREEN 3: COMORBILIDADES -->
+<div class="screen" id="s3">
+  <div class="progress-bar">
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step active"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <span class="progress-label">3 de 5</span>
+  </div>
+  <p class="step-title">Comorbilidades relevantes</p>
+  <p class="step-subtitle">Marca todas las que apliquen al paciente. Algunas son contraindicaciones absolutas, otras requieren precaución.</p>
+  <div class="checkbox-list">
+    <div class="check-item" data-val="icc_descomp" data-type="abs" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Insuficiencia cardíaca descompensada</span>
+      <span class="check-badge badge-abs">Absoluta</span>
+    </div>
+    <div class="check-item" data-val="tvp_aguda" data-type="abs" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Trombosis venosa profunda aguda (no tratada)</span>
+      <span class="check-badge badge-abs">Absoluta</span>
+    </div>
+    <div class="check-item" data-val="eap_grave" data-type="abs" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Arteriopatía periférica grave (EAP)</span>
+      <span class="check-badge badge-abs">Absoluta</span>
+    </div>
+    <div class="check-item" data-val="flebitis_séptica" data-type="abs" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Flebitis séptica / infección grave del miembro</span>
+      <span class="check-badge badge-abs">Absoluta</span>
+    </div>
+    <div class="check-item" data-val="icc_comp" data-type="rel" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Insuficiencia cardíaca compensada</span>
+      <span class="check-badge badge-rel">Precaución</span>
+    </div>
+    <div class="check-item" data-val="neuropatia" data-type="rel" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Neuropatía periférica</span>
+      <span class="check-badge badge-rel">Precaución</span>
+    </div>
+    <div class="check-item" data-val="dm" data-type="rel" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Diabetes mellitus</span>
+      <span class="check-badge badge-rel">Precaución</span>
+    </div>
+    <div class="check-item" data-val="piel_fragil" data-type="rel" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Piel muy frágil / dermatitis / eccema activo</span>
+      <span class="check-badge badge-rel">Precaución</span>
+    </div>
+    <div class="check-item" data-val="ir" data-type="rel" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Insuficiencia renal significativa</span>
+      <span class="check-badge badge-rel">Precaución</span>
+    </div>
+    <div class="check-item" data-val="edad_avanzada" data-type="rel" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Edad muy avanzada con fragilidad</span>
+      <span class="check-badge badge-rel">Precaución</span>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="goTo('s2')">Atrás</button>
+    <button class="btn btn-primary" onclick="goTo('s4')">Continuar</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: FASE CLÍNICA -->
+<div class="screen" id="s4">
+  <div class="progress-bar">
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step active"></div>
+    <div class="progress-step"></div>
+    <span class="progress-label">4 de 5</span>
+  </div>
+  <p class="step-title">Fase clínica de la lesión</p>
+  <p class="step-subtitle">¿En qué situación clínica se encuentra actualmente la úlcera o el paciente?</p>
+  <div class="option-grid">
+    <div class="option-card" data-group="fase" data-val="activa" onclick="selectOption(this)">
+      <div class="option-dot"></div>
+      <div>
+        <div class="option-label">Úlcera activa</div>
+        <div class="option-desc">Herida abierta, requiere curas activas y control del edema</div>
+      </div>
+    </div>
+    <div class="option-card" data-group="fase" data-val="cicatrizacion" onclick="selectOption(this)">
+      <div class="option-dot"></div>
+      <div>
+        <div class="option-label">En proceso de cicatrización</div>
+        <div class="option-desc">Herida en fase de granulación o epitelización avanzada</div>
+      </div>
+    </div>
+    <div class="option-card" data-group="fase" data-val="mantenimiento" onclick="selectOption(this)">
+      <div class="option-dot"></div>
+      <div>
+        <div class="option-label">Cicatrizada — mantenimiento</div>
+        <div class="option-desc">Úlcera cerrada, se requiere compresión para evitar recidiva</div>
+      </div>
+    </div>
+    <div class="option-card" data-group="fase" data-val="prevencion" onclick="selectOption(this)">
+      <div class="option-dot"></div>
+      <div>
+        <div class="option-label">Sin úlcera — prevención</div>
+        <div class="option-desc">Insuficiencia venosa crónica sin lesión activa, riesgo de recidiva</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="goTo('s3')">Atrás</button>
+    <button class="btn btn-primary" id="btn4" disabled onclick="goTo('s5')">Continuar</button>
+  </div>
+</div>
+
+<!-- SCREEN 5: CONTEXTO PACIENTE -->
+<div class="screen" id="s5">
+  <div class="progress-bar">
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step active"></div>
+    <span class="progress-label">5 de 5</span>
+  </div>
+  <p class="step-title">Contexto del paciente</p>
+  <p class="step-subtitle">Factores que influyen en el tipo de sistema compresivo y la adherencia.</p>
+  <div class="section-label">Capacidad y entorno</div>
+  <div class="checkbox-list">
+    <div class="check-item" data-val="autonomo" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Puede colocarse medias por sí mismo</span>
+    </div>
+    <div class="check-item" data-val="cuidador" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Dispone de cuidador capacitado</span>
+    </div>
+    <div class="check-item" data-val="adherencia_prev" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Buena adherencia en tratamientos previos</span>
+    </div>
+    <div class="check-item" data-val="movilidad_red" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Movilidad reducida / encamamiento parcial</span>
+    </div>
+    <div class="check-item" data-val="obesidad" onclick="toggleCheck(this)">
+      <div class="check-box"></div>
+      <span class="check-label">Obesidad importante (dificultad para medias)</span>
+    </div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="goTo('s4')">Atrás</button>
+    <button class="btn btn-primary" onclick="computeResult()">Ver resultado</button>
+  </div>
+</div>
+
+<!-- SCREEN 6: RESULTADO -->
+<div class="screen" id="s6">
+  <div class="header">
+    <div class="header-icon" style="background:var(--c-teal);">
+      <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>Resultado de la valoración</h1>
+      <p>Basado en los datos introducidos</p>
+    </div>
+  </div>
+  <div id="semaphore-result"></div>
+  <div id="system-recom-card"></div>
+  <div id="precautions-card"></div>
+  <div class="nav-row" style="margin-top:1rem;">
+    <button class="btn btn-ghost" onclick="goTo('s5')">Revisar</button>
+    <button class="btn btn-primary" onclick="goTo('s7')">Educación al paciente</button>
+  </div>
+  <div style="text-align:center; margin-top:1rem;">
+    <button class="btn" style="font-size:12px; color:var(--color-text-secondary);" onclick="resetAll()">Nueva valoración</button>
+  </div>
+</div>
+
+<!-- SCREEN 7: EDUCACIÓN -->
+<div class="screen" id="s7">
+  <div class="header">
+    <div class="header-icon" style="background:#185FA5;">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>Información para el paciente</h1>
+      <p>Mensajes clave sobre la terapia compresiva</p>
+    </div>
+  </div>
+  <div id="edu-content"></div>
+  <div class="nav-row" style="margin-top:1rem;">
+    <button class="btn btn-ghost" onclick="goTo('s6')">Volver al resultado</button>
+    <button class="btn btn-primary" onclick="resetAll()">Nueva valoración</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const state = {
+  lesion: null,
+  pulso_pedia: false,
+  pulso_tibial: false,
+  isquemia: [],
+  itb_disponible: false,
+  itb_valor: 0.9,
+  comorbilidades: [],
+  comorbilidades_rel: [],
+  fase: null,
+  contexto: []
+};
+
+function goTo(id) {
+  if (id === 's7' && document.getElementById('edu-content').innerHTML === '') buildEdu();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function selectOption(el) {
+  const group = el.dataset.group;
+  document.querySelectorAll('[data-group="' + group + '"]').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state[group] = el.dataset.val;
+  if (group === 'lesion') document.getElementById('btn1').disabled = false;
+  if (group === 'fase') document.getElementById('btn4').disabled = false;
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const val = el.dataset.val;
+  const type = el.dataset.type;
+  if (type === 'abs') {
+    const idx = state.isquemia.indexOf(val);
+    if (idx === -1) state.isquemia.push(val);
+    else state.isquemia.splice(idx, 1);
+  } else if (type === 'rel') {
+    const idx = state.comorbilidades_rel.indexOf(val);
+    if (idx === -1) state.comorbilidades_rel.push(val);
+    else state.comorbilidades_rel.splice(idx, 1);
+  } else {
+    const idx = state.contexto.indexOf(val);
+    if (idx === -1) state.contexto.push(val);
+    else state.contexto.splice(idx, 1);
+  }
+}
+
+function toggleItem(el, key) {
+  el.classList.toggle('on');
+  state[key] = el.classList.contains('on');
+}
+
+function toggleITB() {
+  const el = document.getElementById('t-itb');
+  el.classList.toggle('on');
+  state.itb_disponible = el.classList.contains('on');
+  document.getElementById('itb-slider-wrap').style.display = state.itb_disponible ? 'block' : 'none';
+  document.getElementById('itb-nodisp').style.display = state.itb_disponible ? 'none' : 'block';
+}
+
+function updateITB() {
+  const val = parseFloat(document.getElementById('itb-range').value);
+  state.itb_valor = val;
+  document.getElementById('itb-display').textContent = val.toFixed(2);
+  const ind = document.getElementById('itb-indicator');
+  if (val >= 0.8) { ind.className = 'itb-indicator itb-green'; ind.textContent = 'ITB ≥ 0.8 — Compresión viable'; }
+  else if (val >= 0.5) { ind.className = 'itb-indicator itb-amber'; ind.textContent = 'ITB 0.5–0.79 — Precaución / compresión reducida'; }
+  else { ind.className = 'itb-indicator itb-red'; ind.textContent = 'ITB < 0.5 — Contraindicado sin valoración vascular'; }
+}
+
+function computeResult() {
+  const s = state;
+  let nivel = 'verde';
+  let motivos_rojo = [];
+  let motivos_amarillo = [];
+
+  const abs_isquemia = ['dolor_reposo', 'necrosis', 'isquemia_aguda'];
+  const labels_isquemia = { 'dolor_reposo': 'Dolor en reposo presente', 'necrosis': 'Necrosis o gangrena presente', 'isquemia_aguda': 'Isquemia aguda detectada' };
+  for (const a of abs_isquemia) {
+    if (document.querySelector('[data-val="' + a + '"].checked')) {
+      nivel = 'rojo';
+      motivos_rojo.push(labels_isquemia[a]);
+    }
+  }
+
+  const abs_comorbid = ['icc_descomp', 'tvp_aguda', 'eap_grave', 'flebitis_séptica'];
+  const labels_abs = { 'icc_descomp': 'ICC descompensada', 'tvp_aguda': 'TVP aguda no tratada', 'eap_grave': 'Arteriopatía periférica grave', 'flebitis_séptica': 'Flebitis séptica o infección grave' };
+  for (const a of abs_comorbid) {
+    if (document.querySelector('[data-val="' + a + '"].checked')) {
+      nivel = 'rojo';
+      motivos_rojo.push(labels_abs[a]);
+    }
+  }
+
+  if (s.itb_disponible && s.itb_valor < 0.5) {
+    nivel = 'rojo';
+    motivos_rojo.push('ITB < 0.5 (valor: ' + s.itb_valor.toFixed(2) + ')');
+  }
+
+  if (s.lesion === 'mixta' || s.lesion === 'dudosa') {
+    if (nivel !== 'rojo') { nivel = 'amarillo'; motivos_amarillo.push('Lesión de etiología mixta o no filiada'); }
+  }
+
+  if (s.itb_disponible && s.itb_valor >= 0.5 && s.itb_valor < 0.8) {
+    if (nivel !== 'rojo') { nivel = 'amarillo'; motivos_amarillo.push('ITB entre 0.5 y 0.79 — compresión reducida posible'); }
+  }
+  if (!s.itb_disponible) {
+    if (nivel !== 'rojo') { nivel = 'amarillo'; motivos_amarillo.push('ITB no disponible — se recomienda obtenerlo'); }
+  }
+
+  const rel_labels = { 'icc_comp': 'ICC compensada — iniciar con compresión ligera', 'neuropatia': 'Neuropatía — vigilancia de tolerancia', 'dm': 'Diabetes — vigilancia de isquemia silente', 'piel_fragil': 'Piel frágil — protección de prominencias', 'ir': 'Insuficiencia renal — vigilar respuesta', 'edad_avanzada': 'Fragilidad — ajustar presión y tipo de sistema' };
+  for (const r of Object.keys(rel_labels)) {
+    if (document.querySelector('[data-val="' + r + '"].checked')) {
+      if (nivel === 'verde') nivel = 'amarillo';
+      motivos_amarillo.push(rel_labels[r]);
+    }
+  }
+
+  const configs = {
+    verde: { cls: 'semaphore-green', icon: '🟢', title: 'VERDE — Compresión indicada', text: 'No se han detectado contraindicaciones absolutas. La compresión terapéutica está indicada. Procede según el sistema y presión adecuados a la fase clínica.' },
+    amarillo: { cls: 'semaphore-amber', icon: '🟡', title: 'AMARILLO — Compresión con precaución', text: 'Existen factores que requieren adaptación del sistema compresivo. Se puede comprimir, pero con vigilancia estrecha y ajuste de presión.' },
+    rojo: { cls: 'semaphore-red', icon: '🔴', title: 'ROJO — Contraindicado / derivar', text: 'Existen contraindicaciones absolutas. No iniciar compresión hasta valoración especializada. Considere derivación vascular.' }
+  };
+
+  const cfg = configs[nivel];
+  document.getElementById('semaphore-result').innerHTML = `<div class="semaphore-card ${cfg.cls}"><div class="semaphore-icon">${cfg.icon}</div><div class="semaphore-title">${cfg.title}</div><div class="semaphore-text">${cfg.text}</div></div>`;
+
+  const fase = s.fase || 'activa';
+  const tieneAutonomia = document.querySelector('[data-val="autonomo"].checked');
+  const tieneCuidador = document.querySelector('[data-val="cuidador"].checked');
+  const obesidad = document.querySelector('[data-val="obesidad"].checked');
+
+  let sistema = '', sistemaDesc = '';
+  if (nivel === 'rojo') {
+    sistema = 'No aplicar compresión';
+    sistemaDesc = 'Derivar a valoración vascular antes de iniciar cualquier terapia compresiva.';
+  } else if (fase === 'activa' || fase === 'cicatrizacion') {
+    if (nivel === 'amarillo' && s.itb_disponible && s.itb_valor < 0.8) {
+      sistema = 'Vendaje de baja compresión / vendaje inelástico modificado';
+      sistemaDesc = 'Con ITB reducido, se puede usar compresión reducida (~20-30 mmHg). Vendaje inelástico de corta tracción puede ser preferible. Revisión frecuente.';
+    } else {
+      sistema = 'Vendaje multicomponente terapéutico';
+      sistemaDesc = 'Sistema de 2-4 capas como estándar de tratamiento. Alta presión sostenida (40 mmHg tobillo). Cambio cada 5-7 días según exudado. Es el gold standard para úlcera venosa activa.';
+    }
+  } else if (fase === 'mantenimiento') {
+    if ((tieneAutonomia || tieneCuidador) && !obesidad) {
+      sistema = 'Media de compresión terapéutica (Clase II-III)';
+      sistemaDesc = 'Medias de compresión de uso diario para mantenimiento de la cicatrización y prevención de recidiva. Requiere medición correcta. Valorar sistema velcro si dificultad para colocación.';
+    } else {
+      sistema = 'Sistema velcro ajustable o vendaje inelástico';
+      sistemaDesc = 'Indicado cuando hay dificultad para manejar medias. Fácil colocación y ajuste por el paciente o cuidador.';
+    }
+  } else {
+    sistema = 'Media de compresión (Clase I-II) para prevención';
+    sistemaDesc = 'Compresión preventiva para el control de la insuficiencia venosa crónica y prevención de úlceras.';
+  }
+
+  document.getElementById('system-recom-card').innerHTML = `<div class="system-card"><h3>Sistema compresivo sugerido</h3><div class="system-recom">${sistema}</div><p style="font-size:13px; color:var(--color-text-secondary); line-height:1.5;">${sistemaDesc}</p></div>`;
+
+  let precauciones = nivel === 'verde' && motivos_amarillo.length === 0
+    ? ['Realizar valoración vascular de referencia antes del inicio', 'Documentar estado de la piel y pulsos antes de la primera aplicación', 'Revisar tolerancia a los 30-60 min de la primera aplicación', 'Instruir al paciente sobre síntomas de alarma (hormigueo, frialdad, cambio de coloración)']
+    : motivos_amarillo.concat(motivos_rojo).concat(['Revisión frecuente de la tolerancia (inicialmente cada 24-48h)', 'Atención especial a prominencias óseas: protección acolchada', 'Valorar consulta con equipo de heridas o vascular si dudas persisten']);
+
+  let preHtml = '<div class="system-card"><h3>Precauciones y puntos de vigilancia</h3><ul class="precaution-list">';
+  for (const p of precauciones) preHtml += `<li>${p}</li>`;
+  preHtml += '</ul></div>';
+  document.getElementById('precautions-card').innerHTML = preHtml;
+
+  state._nivel = nivel;
+  state._fase = fase;
+  goTo('s6');
+}
+
+function buildEdu() {
+  const fase = state._fase || 'activa';
+  const cards = [
+    { title: '¿Por qué necesita compresión?', content: 'Las venas de sus piernas tienen dificultad para devolver la sangre al corazón. La compresión ayuda a las venas a trabajar mejor, reduce la hinchazón y mejora la circulación. Es el tratamiento principal para este tipo de heridas.' },
+    { title: '¿Cómo funciona la compresión?', content: 'El vendaje o la media ejerce una presión que es mayor en el tobillo y va disminuyendo hacia la rodilla. Esto "empuja" la sangre hacia arriba. Al reducir la presión en las venas, la herida recibe mejor riego y puede cicatrizar.' },
+    { title: 'Beneficios que puede notar', content: 'Con el tiempo notará menos hinchazón, menos pesadez y dolor en la pierna. La herida irá cerrando progresivamente. Muchos pacientes también refieren mejor calidad de sueño al reducir el edema.' },
+    { title: 'Su papel es fundamental', content: 'La terapia compresiva solo funciona si se usa de forma constante. Quitarse el vendaje o la media antes de tiempo puede retrasar la cicatrización semanas. Cuéntenos si le resulta incómodo: podemos ajustarlo.' },
+    { title: 'Señales de alarma', content: 'Avise inmediatamente si nota: entumecimiento u hormigueo, cambio de color en los dedos del pie (azulado o muy pálido), dolor intenso que no cede, o sensación de compresión muy fuerte. Son señales de que el vendaje necesita revisión.' }
+  ];
+  if (fase === 'mantenimiento' || fase === 'prevencion') {
+    cards.push({ title: 'Medias de compresión: uso correcto', content: 'Colóquese las medias por la mañana, antes de levantarse o tras 15 min de reposo con piernas elevadas. Retire por la noche. Use guantes de goma para facilitar la colocación. Lávelas a diario con agua templada y jabón suave.' });
+  }
+  let html = '';
+  for (const c of cards) html += `<div class="edu-card"><h3>${c.title}</h3><p>${c.content}</p></div>`;
+  document.getElementById('edu-content').innerHTML = html;
+}
+
+function resetAll() {
+  document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.check-item').forEach(c => c.classList.remove('checked'));
+  document.querySelectorAll('.toggle-row').forEach(t => t.classList.remove('on'));
+  document.getElementById('itb-slider-wrap').style.display = 'none';
+  document.getElementById('itb-nodisp').style.display = 'block';
+  document.getElementById('btn1').disabled = true;
+  document.getElementById('btn4').disabled = true;
+  document.getElementById('edu-content').innerHTML = '';
+  Object.assign(state, { lesion: null, pulso_pedia: false, pulso_tibial: false, isquemia: [], itb_disponible: false, itb_valor: 0.9, comorbilidades: [], comorbilidades_rel: [], fase: null, contexto: [] });
+  goTo('s0');
+}
+</script>
+</body>
+</html>
